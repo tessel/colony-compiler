@@ -128,6 +128,8 @@ function finishNode(node, type) {
   } else if (type == 'Literal') {
     if (node.value instanceof RegExp) {
       return colony_node(node, '_regexp(' + JSON.stringify(node.value.source) + ', ' + JSON.stringify(String(node.value).replace(/^.*\//, '')) + ')');
+    } else if (node.value === null) {
+      return colony_node(node, '(_null)');
     } else {
       return colony_node(node, '(' + node.raw + ')');
     }
