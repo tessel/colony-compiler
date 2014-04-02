@@ -8,10 +8,12 @@
     "example": "examples"
   },
   "bin": {
-    "colony": "./src/cli.js"
+    "colony": "./src/cli.js",
+    "colony-node": "./out/Release/colony"
   },
   "scripts": {
-    "test": "./node_modules/.bin/tap -e './src/cli.js' test/*.js"
+    "test": "./node_modules/.bin/tap -e './src/cli.js' test/*.js",
+    "install": "exit 0"
   },
   "dependencies": {
     "colors": "~0.6.1",
