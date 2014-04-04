@@ -158,7 +158,7 @@ function finishNode(node, type) {
       } else {
         // TODO we run the risk of re-interpreting node.left here
         // need a function that encapsulates that behavior
-        node.right = hygenify(node.left) + operator + hygenify(node.right);
+        node.right = hygenify(node.left) + operator + ensureExpression(hygenify(node.right));
       }
     }
     return colony_node(node, hygenify(node.left) + ' = ' + ensureExpression(hygenify(node.right)));
