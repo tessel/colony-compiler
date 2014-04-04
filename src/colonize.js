@@ -308,7 +308,7 @@ function finishNode(node, type) {
       node.cases.map(function (c, i) {
         return 'local _' + i + (c.test ? ' = ' + c.test : '') + ';'
       }).join(' '),
-      'local _r = ' + node.discriminant + ';',
+      'local _r = ' + ensureExpression(hygenify(node.discriminant)) + ';',
       node.cases.map(function (c, i) {
         if (!c.test) {
           return c.consequent.join(joiner)
