@@ -1,17 +1,17 @@
 {
-  "name": "colony",
-  "version": "0.4.0",
+  "name": "colony-compiler",
+  "version": "0.5.0",
   "private": "true",
-  "description": "Colony is a small JavaScript runtime.",
+  "description": "Kinda compiles JavaScript to Lua.",
   "main": "./src/index.js",
   "directories": {
     "example": "examples"
   },
   "bin": {
-    "colony": "./src/cli.js"
+    "colony-compiler": "./bin/colony-compiler.js"
   },
   "scripts": {
-    "test": "./node_modules/.bin/tap -e './src/cli.js' test/*.js"
+    "test": "./node_modules/.bin/tap -e './bin/colony-compiler.js' test/*.js"
   },
   "dependencies": {
     "colors": "~0.6.1",

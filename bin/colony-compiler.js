@@ -5,7 +5,7 @@ var fs = require('fs')
   , path = require('path')
   , optimist = require('optimist');
 
-var colony = require('./');
+var colony = require('../');
 
 var args = optimist
   .usage('Compile JavaScript to Lua.\nUsage: $0 file.js')
