@@ -419,7 +419,6 @@ function finishNode(node, type) {
     // Done with try block.
     var flow = colony_flow.shift();
 
-console.error(colony_flow);
     return colony_node(node, [
 'local _e = nil',
 'local _s, _r = _xpcall(function ()',
