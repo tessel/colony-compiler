@@ -16,7 +16,6 @@ var colony_locals, colony_flow, colony_with;
 
 function resetState () {
   colony_locals = [];
-  colony_flow = [];
   colony_with = [];
 
   colony_newScope(null);
@@ -27,7 +26,9 @@ function colony_newScope (id) {
   var scope = [];
   scope.id = id;
   scope.hoist = [];
+  scope.flow = [];
 
+  colony_flow = scope.flow;
   colony_locals.unshift(scope);
 }
 
@@ -418,6 +419,7 @@ function finishNode(node, type) {
     // Done with try block.
     var flow = colony_flow.shift();
 
+console.error(colony_flow);
     return colony_node(node, [
 'local _e = nil',
 'local _s, _r = _xpcall(function ()',
@@ -492,6 +494,7 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
     var usesArguments = !!colony_locals[0].arguments;
     var hoistsr = colony_locals[0].hoist.join('\n');
     colony_locals.shift()
+    colony_flow = colony_locals[0].flow;
     if (type == 'FunctionDeclaration') {
       colony_locals[0].push(hygenifystr(node.id));
     }
