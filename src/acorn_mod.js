@@ -1173,7 +1173,7 @@
       // continue to.
       for (var i = 0; i < labels.length; ++i) {
         var lab = labels[i];
-        if (node.label == null || lab.name === node.label.name) {
+        if (node.label == null || lab.name === (node.label.name || node.label.str)) {
           if (lab.kind != null && (isBreak || lab.kind === "loop")) break;
           if (node.label && isBreak) break;
         }

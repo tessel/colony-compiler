@@ -478,7 +478,11 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
     return node;
 
   } else if (type == 'LabeledStatement') {
-    return colony_node(node.body, String(node.body));
+    return colony_node(node.body, [
+      'repeat ',
+      bodyjoin(node.body.body),
+      ' until false;'
+    ].join(''));
 
 
   // Contexts
