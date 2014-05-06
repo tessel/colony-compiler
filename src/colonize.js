@@ -87,6 +87,11 @@ function hygenify (node) {
   return node;
 }
 
+function isValidIdentifier (str) {
+  // TODO unicode characters too
+  return str.indexOf('$') == -1;
+}
+
 function ensureExpression (node) {
   if (node.type == 'AssignmentExpression') {
     var parenless = node.toString();
@@ -156,7 +161,7 @@ function finishNode(node, type) {
   } else if (type == 'MemberExpression') {
     if (node.computed) {
       return colony_node(node, ensureExpression(hygenify(node.object)) + '[' + ensureExpression(hygenify(node.property)) + ']');
-    } else if (keywords.indexOf(String(node.property)) > -1) {
+    } else if (keywords.indexOf(String(node.property)) > -1 || !isValidIdentifier(node.property)) {
       return colony_node(node, ensureExpression(hygenify(node.object)) + '[' + JSON.stringify(String(node.property)) + ']');
     } else {
       return colony_node(node, ensureExpression(hygenify(node.object)) + '.' + node.property);
