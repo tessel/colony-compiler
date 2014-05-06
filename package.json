@@ -1,6 +1,6 @@
 {
   "name": "colony-compiler",
-  "version": "0.5.0-4",
+  "version": "0.5.0-5",
   "description": "Kinda compiles JavaScript to Lua.",
   "main": "./src/index.js",
   "directories": {
