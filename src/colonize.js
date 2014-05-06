@@ -89,7 +89,20 @@ function hygenify (node) {
 
 function ensureExpression (node) {
   if (node.type == 'AssignmentExpression') {
-    var _ = node.split(/=\s*/, 2), left = _[0], right = node.substr(left.length + 1);
+    var parenless = node.toString();
+    while (parenless.match(/\[[^\]]*\]/)) {
+      parenless = parenless.replace(/\[[^\]]*\]/g, function (str) {
+        return str.replace(/./g, ' ');
+      });
+    }
+    while (parenless.match(/\([^\)]*\)/)) {
+      parenless = parenless.replace(/\([^\)]*\)/g, function (str) {
+        return str.replace(/./g, ' ');
+      });
+    }
+    var _ = parenless.split(/=\s*/, 2),
+      left = node.substr(0, _[0].length),
+      right = node.substr(_[0].length + 1);
     return colony_node(node, '(function () local _r = ' + right + '; ' + left + ' = _r; return _r; end)()');
   } else if (node.type == 'UpdateExpression') {
     return colony_node(node, '(function () ' + node + '; return _r; end)()')
