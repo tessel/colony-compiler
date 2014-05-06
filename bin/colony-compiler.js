@@ -35,7 +35,7 @@ function cli () {
 
   var luacode = colony.colonize(source);
   if (argv.m) {
-    colony.toBytecode(luacode, function (err, bin) {
+    colony.toBytecode(luacode, file, function (err, bin) {
       process.stdout.write(bin);
     })
   } else {
