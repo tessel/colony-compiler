@@ -509,7 +509,7 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
       + bodyjoin(node.body.body)
       + '\nend'
       + (node.id ? '; ' + hygenifystr(node.id) + '.name = ' + JSON.stringify(hygenifystr(node.id)) + '; return ' + hygenifystr(node.id) + '; end)()' : '')
-      + (type == 'FunctionDeclaration' ? '\n' : ')'));
+      + (type == 'FunctionDeclaration' ? ';\n' : ')'));
 
     if (type == 'FunctionDeclaration') {
       colony_locals[0].hoist.push(fnnode);
