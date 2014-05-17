@@ -95,20 +95,23 @@ function isValidIdentifier (str) {
 
 function ensureExpression (node) {
   if (node.type == 'AssignmentExpression') {
+    // Eliminate parens in left side of assignment to identify where = occurs.
     var parenless = node.toString();
-    while (parenless.match(/\[[^\]]*\]/)) {
-      parenless = parenless.replace(/\[[^\]]*\]/g, function (str) {
+    while (parenless.match(/\[[^\[\]]*\]/)) {
+      parenless = parenless.replace(/\[[^\[\]]*\]/g, function (str) {
         return str.replace(/./g, ' ');
       });
     }
-    while (parenless.match(/\([^\)]*\)/)) {
-      parenless = parenless.replace(/\([^\)]*\)/g, function (str) {
+    while (parenless.match(/\([^\(\)]*\)/)) {
+      parenless = parenless.replace(/\([^\(\)]*\)/g, function (str) {
         return str.replace(/./g, ' ');
       });
     }
     var _ = parenless.split(/=\s*/, 2),
       left = node.substr(0, _[0].length),
       right = node.substr(_[0].length + 1);
+
+    // Return new node.
     return colony_node(node, '(function () local _r = ' + right + '; ' + left + ' = _r; return _r; end)()');
   } else if (node.type == 'UpdateExpression') {
     return colony_node(node, '(function () ' + node + '; return _r; end)()')
@@ -325,9 +328,9 @@ function finishNode(node, type) {
     return colony_node(node, [
       'repeat',
       node.cases.map(function (c, i) {
-        return 'local _' + i + (c.test ? ' = ' + c.test : '') + ';'
+        return 'local _' + i + (c.test ? ' = ' + ensureExpression(hygenify(c.test)) : '') + ';'
       }).join(' '),
-      'local _r = ' + ensureExpression(node.discriminant) + ';',
+      'local _r = ' + ensureExpression(hygenify(node.discriminant)) + ';',
       node.cases.map(function (c, i) {
         if (!c.test) {
           return c.consequent.join(joiner)
@@ -406,7 +409,7 @@ function finishNode(node, type) {
 
     return colony_node(node, [
       // TODO need node.init.declarations?
-      node.init ? (node.init.declarations ? node.init.declarations.join(' ') : node.init) : '',
+      node.init ? (node.init.declarations ? node.init.declarations.join(' ') : ensureStatement(hygenify(node.init))) : '',
       'while ' + (node.test ? ensureExpression(node.test) : 'true') + ' do ',
       (flow.usesContinue ? 'local _c = nil; repeat' : ''),
       !node.body.body ? node.body : bodyjoin(node.body.body),
