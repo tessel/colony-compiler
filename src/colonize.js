@@ -125,7 +125,7 @@ function ensureStatement (node) {
 }
 
 function bodyjoin (arr) {
-  return arr.map(function (node) {
+  return (arr || []).map(function (node) {
     return '--[[' + node.start + ']] ' + node;
   }).join('\n');
 }
@@ -354,7 +354,7 @@ function finishNode(node, type) {
     return node;
     // return 'do\n' + node.body.join('\n') + 'end\n'
 
-  } else if (type == 'EmptyStatement') {
+  } else if (type == 'EmptyStatement' || type == 'DebuggerStatement') {
     return colony_node(node, '');
 
 

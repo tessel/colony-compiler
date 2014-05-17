@@ -1,10 +1,10 @@
-var colony = require('./compile_lua');
+exports.compile = function (luacode, name)
+{
+	var colony = require('./compile_lua');
+	colony.print = function (arg) {
+	}
+	var go = colony.cwrap('go_for_it', 'number', ['string', 'number', 'string']);
 
-colony.print = function (arg) {
-}
-var go = colony.cwrap('go_for_it', 'number', ['string', 'number', 'string']);
-
-exports.compile = function (luacode, name) {
 	var bufs = [];
 	global.COLONY_OUTPUT = function (arg) {
 		bufs.push(new Buffer([arg]));
@@ -21,5 +21,6 @@ exports.compile = function (luacode, name) {
 		throw new Error('Bytecode compilation failed with error code ' + res);
 	}
 
+	delete require.cache[require.resolve('./compile_lua')];
 	return Buffer.concat(bufs);
 }
