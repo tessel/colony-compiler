@@ -177,7 +177,7 @@ function finishNode(node, type) {
       } else {
         // TODO we run the risk of re-interpreting node.left here
         // need a function that encapsulates that behavior
-        node.right = hygenify(node.left) + operator + hygenify(node.right);
+        node.right = hygenify(node.left) + operator + ensureExpression(hygenify(node.right));
       }
     }
     return colony_node(node, hygenify(node.left) + ' = ' + ensureExpression(hygenify(node.right)));
@@ -327,7 +327,7 @@ function finishNode(node, type) {
       node.cases.map(function (c, i) {
         return 'local _' + i + (c.test ? ' = ' + c.test : '') + ';'
       }).join(' '),
-      'local _r = ' + node.discriminant + ';',
+      'local _r = ' + ensureExpression(node.discriminant) + ';',
       node.cases.map(function (c, i) {
         if (!c.test) {
           return c.consequent.join(joiner)
