@@ -1,7 +1,7 @@
 var acorn = require('./acorn_mod');
 
 function _log () {
-//  console.error.apply(console, arguments);
+ // console.error.apply(console, arguments);
 }
 
 var repl = false;
@@ -74,7 +74,12 @@ function hygenifystr (str) {
     if (keywords.indexOf(str) > -1) {
       return '_K_' + str;
     } else {
-      return str.replace(/_/g, '__').replace(/\$/g, '_S');
+      return str
+        .replace(/_/g, '__')
+        .replace(/\$/g, '_S')
+        .replace(/[\u0080-\uFFFF]/g, function (c) {
+          return '_' + ('0000' + c.charCodeAt(0)).slice(-4);
+        });
     }
     // return 'COL_' + str;
   }
@@ -129,7 +134,7 @@ function ensureStatement (node) {
 
 function bodyjoin (arr) {
   return (arr || []).map(function (node) {
-    return '--[[' + node.start + ']] ' + node;
+    return '--[[' + node.start + ']] ' + (node.type == 'BlockStatement' ? bodyjoin(node.body) : node);
   }).join('\n');
 }
 
@@ -165,7 +170,7 @@ function finishNode(node, type) {
   } else if (type == 'MemberExpression') {
     if (node.computed) {
       return colony_node(node, ensureExpression(hygenify(node.object)) + '[' + ensureExpression(hygenify(node.property)) + ']');
-    } else if (keywords.indexOf(String(node.property)) > -1 || !isValidIdentifier(node.property)) {
+    } else if (hygenifystr(String(node.property)) != String(node.property)) {
       return colony_node(node, ensureExpression(hygenify(node.object)) + '[' + JSON.stringify(String(node.property)) + ']');
     } else {
       return colony_node(node, ensureExpression(hygenify(node.object)) + '.' + node.property);
@@ -214,7 +219,7 @@ function finishNode(node, type) {
     // if (ismethod) {
     //   throw new Error('Dont support methods as new expressions yet');
     // }
-    return colony_node(node, '_new(' + [node.callee].concat(node.arguments.map(hygenify)).join(', ') + ')');
+    return colony_node(node, '_new(' + [node.callee].concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
 
   } else if (type == 'ThisExpression') {
     return colony_node(node, 'this');
@@ -252,7 +257,7 @@ function finishNode(node, type) {
     function opt (a) {
       return a || colony_node({type: 'Literal', value: null, raw: 'null'}, 'nil')
     }
-    return colony_node(node, '_arr({' + [node.elements.length > 0 ? '[0]=' + hygenify(opt(node.elements[0])) : ''].concat(node.elements.slice(1).map(opt).map(hygenify).map(ensureExpression)).join(', ') + '}, ' + node.elements.length + ')')
+    return colony_node(node, '_arr({' + [node.elements.length > 0 ? '[0]=' + ensureExpression(hygenify(opt(node.elements[0]))) : ''].concat(node.elements.slice(1).map(opt).map(hygenify).map(ensureExpression)).join(', ') + '}, ' + node.elements.length + ')')
 
   } else if (type == 'ObjectExpression') {
     return colony_node(node, '_obj({\n  '
@@ -335,7 +340,9 @@ function finishNode(node, type) {
         if (!c.test) {
           return c.consequent.join(joiner)
         }
-        return 'if _r == _' + i + ' then' + joiner + c.consequent.join(joiner) + joiner + (i < node.cases.length - 1 && (c.consequent.slice(-1)[0] || {}).type != 'BreakStatement' ? '_r = _' + (i + 1) + ';' + joiner : '') + 'end'
+        return 'if _r == _' + i + ' then' + joiner + c.consequent.map(function (con) {
+          return con.type == 'BlockStatement' ? bodyjoin(con.body) : con;
+        }).join(joiner) + joiner + (i < node.cases.length - 1 && (c.consequent.slice(-1)[0] || {}).type != 'BreakStatement' ? '_r = _' + (i + 1) + ';' + joiner : '') + 'end'
       }).join(joiner),
       'until true'
     ].join(joiner))
