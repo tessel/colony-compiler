@@ -1,3 +1,0 @@
-[submodule "src/bytecode/colony-lua"]
-	path = src/bytecode/colony-lua
-	url = https://github.com/tessel/colony-lua.git
