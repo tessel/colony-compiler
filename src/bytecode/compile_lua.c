@@ -27,9 +27,10 @@ EM_ASM_INT({
 }
 
 int _lua_sourcemap (int i) {
-return EM_ASM_INT({
-    return COLONY_SOURCEMAP($0);
-}, i);
+    return 0;
+// return EM_ASM_INT({
+//     return COLONY_SOURCEMAP($0);
+// }, i);
 }
 
 int go_for_it (char *content, size_t contentSize, char* name)

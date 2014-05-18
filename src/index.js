@@ -9,5 +9,5 @@ exports.colonize = require('./colonize');
 exports.toBytecode = function (lua, f, next) {
   next = typeof f == 'function' ? f : next;
   f = typeof f == 'string' ? f : 'usercode.js';
-  next(null, bytecode.compile(lua, '@' + f));
+  bytecode.compile(lua, '@' + f, next);
 };
