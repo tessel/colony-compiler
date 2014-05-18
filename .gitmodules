@@ -1,0 +1,3 @@
+[submodule "deps/colony-lua"]
+	path = deps/colony-lua
+	url = https://github.com/tessel/colony-lua.git
