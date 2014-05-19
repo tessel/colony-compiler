@@ -11,3 +11,5 @@ exports.toBytecode = function (lua, f, next) {
   f = typeof f == 'string' ? f : 'usercode.js';
   bytecode.compile(lua, '@' + f, next);
 };
+
+exports.all = require('./all');
