@@ -211,7 +211,7 @@ function finishNode(node, type) {
     // For member expressions, change last occurance of '.' to ':'
     var ismethod = node.callee.type == 'MemberExpression'
     return colony_node(node,
-      (ismethod ? hygenify(node.callee).replace(/^([\s\S]+)\./, '$1:') : hygenify(node.callee))
+      (ismethod ? hygenify(node.callee).replace(/^([\s\S]+)\./, '$1:') : ensureExpression(hygenify(node.callee)))
       + '(' + (ismethod ? [] : ['this']).concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
 
   } else if (type == 'NewExpression') {
@@ -219,7 +219,7 @@ function finishNode(node, type) {
     // if (ismethod) {
     //   throw new Error('Dont support methods as new expressions yet');
     // }
-    return colony_node(node, '_new(' + [node.callee].concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
+    return colony_node(node, '_new(' + [ensureExpression(hygenify(node.callee))].concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
 
   } else if (type == 'ThisExpression') {
     return colony_node(node, 'this');
@@ -311,7 +311,7 @@ function finishNode(node, type) {
 
   } else if (type == 'VariableDeclarator') {
     colony_locals[0].push(hygenify(node.id));
-    return colony_node(node, hygenify(node.id) + ' = ' + (node.init ? ensureExpression(node.init) : 'nil') + '; ')
+    return colony_node(node, hygenify(node.id) + ' = ' + (node.init ? ensureExpression(hygenify(node.init)) : 'nil') + '; ')
 
   } else if (type == 'VariableDeclaration') {
     return colony_node(node, node.declarations.join(' '));
@@ -549,7 +549,7 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
   throw new Error('Colony cannot yet handle type ' + type);
 }
 
-module.exports = function (script, opts)
+function colonize (script, opts)
 {
   var joiner = '\n';
 
@@ -559,23 +559,43 @@ module.exports = function (script, opts)
   // Replace leading /usr/bin/env lines.
   script = script.replace(/^\#\!/, '//#!');
 
-  resetState();
-  var res = acorn.parse(script, {
-    allowReturnOutsideFunction: true,
-    behaviors: {
-      openFor: colony_newFlow.bind(null, 'for'),
-      openTry: colony_newFlow.bind(null, 'try'),
-      openWhile: colony_newFlow.bind(null, 'while'),
-      openSwitch: colony_newFlow.bind(null, 'switch'),
-      openLabel: colony_newFlowLabel,
-      openFunction: colony_newScope,
-      closeNode: finishNode
+  // Parse script.
+  try {
+    resetState();
+    var res = acorn.parse(script, {
+      allowReturnOutsideFunction: true,
+      behaviors: {
+        openFor: colony_newFlow.bind(null, 'for'),
+        openTry: colony_newFlow.bind(null, 'try'),
+        openWhile: colony_newFlow.bind(null, 'while'),
+        openSwitch: colony_newFlow.bind(null, 'switch'),
+        openLabel: colony_newFlowLabel,
+        openFunction: colony_newScope,
+        closeNode: finishNode
+      }
+    });
+  } catch (e) {
+    if (!(e instanceof SyntaxError)) {
+      throw e;
     }
-  });
 
+    // Create a readable SyntaxError message.
+    var message = [
+      e.message,
+      '',
+      ((opts || {}).path || '(user script)') + ':' + e.loc.line,
+      script.split(/\n/)[e.loc.line-2] || '',
+      Array(e.loc.column || 0).join(' ') + '^'
+    ].join('\n');
+    // Files with syntax errors can't be compiled.
+    // We can pretend they were thrown by our parser though, at runtime.
+    return colonize('throw new SyntaxError(' + JSON.stringify(message) + ')');
+  }
+
+  // Break out prelude code (with statements, etc) from runnings statements.
+  // This is just a crude serialization through the string output by acorn.
   var prelude = res.replace(/--\[\[COLONY_MODULE\]\][\s\S]*$/, '');
   var body = res.replace(/^[\s\S]*--\[\[COLONY_MODULE\]\]/, '');
-
   if (!wrap) {
     return prelude + '\n' + body;
   }
@@ -591,17 +611,28 @@ module.exports = function (script, opts)
     'end '
   ].join(joiner)
 
-  var last = 0;
-  function linefromchar (c) {
-    return last = script.substr(0, c).split(/\n/).length;
+  // Map each string offset to its line once...
+  var linecache = Array(script.length);
+  for (var i = 0, lines = 0; i < script.length; i++) {
+    if (script[i] == '\n') {
+      lines++;
+    }
+    linecache[i] = lines;
   }
-
-  var sourcemap = mapped.split(/\n/).map(function (line) {
-    return linefromchar(Number((line.match(/--\[\[(.*?)\]\]/) || [0, last])[1]));
-  });
+  // So we can recover string offsets and make a source map.
+  var last = 0;
+  var sourcemap = mapped.match(/^(\-\-\[\[[^\]]+)?/gm).map(function (val, i) {
+    if (val.length) {
+      last = parseInt(val.slice(4))
+    }
+    return linecache[last];
+  })
 
   return {
     source: mapped,
     sourcemap: sourcemap
   };
 };
+
+// Public API
+module.exports = colonize;
