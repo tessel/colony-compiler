@@ -33,7 +33,7 @@ function all (entries, oncompiled, onfinish)
     q.push(task, function (err) {
       var compiled = task.compiled;
       if (err || !compiled) {
-        console.log('COMPILATION ERROR:', entry.compiled);
+        console.log('COMPILATION ERROR:', compiled, err);
         return next();
       }
       colonyCompiler.toBytecode(compiled, function (err, data) {
