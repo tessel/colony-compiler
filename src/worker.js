@@ -1,9 +1,11 @@
 var colonyCompiler = require('../');
 
-process.on('message', function (data) {
+process.on('message', function (entry) {
   try {
     process.send({
-      compiled: colonyCompiler.colonize(data, {})
+      compiled: colonyCompiler.colonize(entry.source, {
+      	path: entry.path
+      })
     });
   } catch (e) {
     process.send({

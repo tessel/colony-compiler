@@ -20,7 +20,7 @@ function all (entries, oncompiled, onfinish)
       task.compiled = data.compiled;
       setImmediate(callback, data.error);
     });
-    w.send(task.source);
+    w.send(task.entry);
   }, workers.length);
   q.drain = function () {
     workers.forEach(function (worker) {
@@ -29,12 +29,11 @@ function all (entries, oncompiled, onfinish)
   }
 
   async.each(entries, function (entry, next) {
-    var task = { source: String(entry) };
+    var task = { entry: entry };
     q.push(task, function (err) {
       var compiled = task.compiled;
       if (err || !compiled) {
-        console.log('COMPILATION ERROR:', compiled, err);
-        return next();
+        return next(err);
       }
       colonyCompiler.toBytecode(compiled, function (err, data) {
         oncompiled(err, data, entry, next);

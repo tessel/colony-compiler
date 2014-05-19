@@ -34,10 +34,11 @@ function withTarball (name, stream, next) {
     .pipe(new tar.Parse()).on('entry', function (entry) {
       if (entry.path.match(/\.js$/i)) {
         entry.pipe(concat(function (data) {
-          var file = new String(data.toString());
-          file.name = name;
-          file.path = entry.path;
-          entries.push(file);
+          entries.push({
+            name: name,
+            path: entry.path,
+            source: String(data)
+          });
         }));
       }
     })
@@ -74,7 +75,10 @@ getDepended(0, function (err, modules) {
   async.eachSeries(modules || [], function (m, next) {
     console.log('#', ++i, m);
     getTarball(m, next);
-  }, function () {
+  }, function (err) {
+    if (err) {
+      throw err;
+    }
     console.log('done');
   });
 });
