@@ -31,6 +31,10 @@ function withTarball (name, stream, next) {
   var entries = [];
   stream
     .pipe(zlib.createGunzip())
+    .on('error', function (err) {
+      console.error(err);
+      next();
+    })
     .pipe(new tar.Parse()).on('entry', function (entry) {
       if (entry.path.match(/\.js$/i)) {
         entry.pipe(concat(function (data) {
@@ -47,7 +51,7 @@ function withTarball (name, stream, next) {
 
       colonyCompiler.all(entries, function (err, compiled, entry, next) {
         if (err) {
-          console.log('INTERNAL VM ERROR:', name, err);
+          console.log(name + ':', err);
           return next();
         }
 
@@ -70,9 +74,14 @@ function getTarball (name, next) {
   })
 }
 
-getDepended(0, function (err, modules) {
+async.mapLimit([0,1,2,3,4,5,6,7,8,9], 2, function (page, next) {
+  getDepended(page, next)
+}, function (err, modules) {
+  modules = [].concat.apply([], modules);
   var i = 0;
-  async.eachSeries(modules || [], function (m, next) {
+  
+  console.log('# starting...');
+  async.eachSeries(modules, function (m, next) {
     console.log('#', ++i, m);
     getTarball(m, next);
   }, function (err) {

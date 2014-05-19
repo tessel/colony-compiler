@@ -53,7 +53,7 @@ int go_for_it (char *content, size_t contentSize, const char* name)
     // ** test 1 - works as expected
     lua_settop(L,0);
     res = luaL_loadbuffer(L, content, strlen(content), name);
-    if (res != 0) {
+    if (res == 0) {
         lua_dump(L, (lua_Writer)bufbuilder, &buf);
     }
     return res;

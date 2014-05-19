@@ -211,7 +211,7 @@ function finishNode(node, type) {
     // For member expressions, change last occurance of '.' to ':'
     var ismethod = node.callee.type == 'MemberExpression'
     return colony_node(node,
-      (ismethod ? hygenify(node.callee).replace(/^([\s\S]+)\./, '$1:') : hygenify(node.callee))
+      (ismethod ? hygenify(node.callee).replace(/^([\s\S]+)\./, '$1:') : ensureExpression(hygenify(node.callee)))
       + '(' + (ismethod ? [] : ['this']).concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
 
   } else if (type == 'NewExpression') {
@@ -219,7 +219,7 @@ function finishNode(node, type) {
     // if (ismethod) {
     //   throw new Error('Dont support methods as new expressions yet');
     // }
-    return colony_node(node, '_new(' + [node.callee].concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
+    return colony_node(node, '_new(' + [ensureExpression(hygenify(node.callee))].concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
 
   } else if (type == 'ThisExpression') {
     return colony_node(node, 'this');
@@ -583,7 +583,7 @@ function colonize (script, opts)
     var message = [
       e.message,
       '',
-      (opts.path || '(user script)') + ':' + e.loc.line,
+      ((opts || {}).path || '(user script)') + ':' + e.loc.line,
       script.split(/\n/)[e.loc.line-2] || '',
       Array(e.loc.column || 0).join(' ') + '^'
     ].join('\n');
