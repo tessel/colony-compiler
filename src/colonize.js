@@ -592,13 +592,12 @@ module.exports = function (script, opts)
   ].join(joiner)
 
   var last = 0;
-  function linefromchar (c) {
-    return last = script.substr(0, c).split(/\n/).length;
-  }
-
-  var sourcemap = mapped.split(/\n/).map(function (line) {
-    return linefromchar(Number((line.match(/--\[\[(.*?)\]\]/) || [0, last])[1]));
-  });
+  var sourcemap = mapped.match(/^(\-\-\[\[[^\]]+)?/gm).map(function (val, i) {
+    if (val.length) {
+      last = parseInt(val.slice(4))
+    }
+    return last;
+  })
 
   return {
     source: mapped,

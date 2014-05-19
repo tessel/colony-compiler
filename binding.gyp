@@ -5,9 +5,21 @@
   
   "targets":  [
     {
+      "target_name": "colony_compiler_bytecode",
+      "dependencies": [
+        "colony-lua",
+      ],
+      'include_dirs': [
+        "<!(node -e \"require('nan')\")",
+      ],
+      "sources": [
+        "src/bytecode/binding.cc"
+      ]
+    },
+    {
       "target_name": "colony-lua",
       "product_name": "colony-lua",
-      "type": "executable",
+      "type": "static_library",
       "defines": [
         'LUA_USELONGLONG',
       ],
@@ -42,7 +54,6 @@
         '<(colony_lua_path)/src/lvm.c',
         '<(colony_lua_path)/src/lzio.c',
         '<(colony_lua_path)/src/print.c',
-        'src/bytecode/main.c',
       ],
 
       # Lua uses tmpname and has empty bodies and doesn't use some vars

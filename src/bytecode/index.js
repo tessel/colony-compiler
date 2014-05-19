@@ -1,4 +1,4 @@
-var spawn = require('child_process').spawn;
+var binding = require('bindings')('colony_compiler_bytecode');
 
 exports.compile = function (luacode, name, next)
 {
@@ -26,28 +26,36 @@ exports.compile = function (luacode, name, next)
 	// delete require.cache[require.resolve('./compile_lua')];
 	// return Buffer.concat(bufs);
 
-	var compiler = spawn(__dirname + '/../../build/Release/colony-lua', []);
-	// compiler.stdout.setEncoding(null);
-	compiler.stdin.write(luacode.source);
-	compiler.stdin.end();
-	var bufs = [];
-	compiler.stdout.on('data', function (data) {
-		bufs.push(data);
-	});
-	compiler.on('exit', function (code) {
-		if (code) {
-			throw new Error('Bytecode compilation failed with error code ' + ret.code);
-		}
-	});
-	compiler.stdout.on('close', function () {
-		var hex = Buffer.concat(bufs).toString();
-		try {
-			next(null, new Buffer(hex, 'hex'));
-		} catch (e) {
-			console.log(hex);
-			throw new Error('ERROR');
-		}
-	});
+	// var compiler = spawn(__dirname + '/../../build/Release/colony-lua', []);
+	// // compiler.stdout.setEncoding(null);
+	// compiler.stdin.write(luacode.source);
+	// compiler.stdin.end();
+	// var bufs = [];
+	// compiler.stdout.on('data', function (data) {
+	// 	bufs.push(data);
+	// });
+	// compiler.on('exit', function (code) {
+	// 	if (code) {
+	// 		throw new Error('Bytecode compilation failed with error code ' + ret.code);
+	// 	}
+	// });
+	// compiler.stdout.on('close', function () {
+	// 	var hex = Buffer.concat(bufs).toString();
+	// 	try {
+	// 		next(null, new Buffer(hex, 'hex'));
+	// 	} catch (e) {
+	// 		console.log(hex);
+	// 		throw new Error('ERROR');
+	// 	}
+	// });
+
+	var ret = binding.Compile(luacode.source, name)
+	if (typeof ret == 'number') {
+		next(ret);
+	} else {
+		next(null, ret);
+	}
+
 	// console.error((new Error).stack)
 	// console.error(typeof ret.output)
 	// return ret.output;
