@@ -1,4 +1,5 @@
 var async = require('async');
+
 var colonyCompiler = require('./');
 
 function all (entries, oncompiled, onfinish)
@@ -8,7 +9,7 @@ function all (entries, oncompiled, onfinish)
   var COUNT = require('os').cpus().length;
   var workers = [];
   for (var i = 0; i < COUNT; i++) {
-    workers.push(fork('./worker', []));
+    workers.push(fork(require.resolve('./worker'), []));
   }
 
   var curworkers = workers.slice();
