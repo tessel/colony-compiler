@@ -41,9 +41,10 @@ int _lua_sourcemap (int i)
 }
 }
 
+lua_State *L;
+
 int go_for_it (char *content, size_t contentSize, const char* name)
 {
-    lua_State *L;
     luaL_Buffer buf;
     int res;
     L = lua_open();  /* create state */
@@ -51,9 +52,10 @@ int go_for_it (char *content, size_t contentSize, const char* name)
 
     // ** test 1 - works as expected
     lua_settop(L,0);
-    luaL_loadbuffer(L, content, strlen(content), name);
-    // printf("stack sz: %i\n", lua_gettop(L));
-    res = lua_dump(L, (lua_Writer)bufbuilder, &buf);
+    res = luaL_loadbuffer(L, content, strlen(content), name);
+    if (res != 0) {
+        lua_dump(L, (lua_Writer)bufbuilder, &buf);
+    }
     return res;
 }
 
@@ -74,7 +76,7 @@ NAN_METHOD(Compile) {
     NanDisposePersistent(sourcemap);
 
     if (res > 0) {
-    	NanReturnValue(NanNew<Number>(res));
+    	NanReturnValue(NanNew<String>(lua_tostring(L, -1)));
     } else {
     	NanReturnValue(NanNewBufferHandle((char*) buffer_pointer, buffer_pointer_len));
     }

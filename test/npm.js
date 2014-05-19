@@ -47,7 +47,7 @@ function withTarball (name, stream, next) {
 
       colonyCompiler.all(entries, function (err, compiled, entry, next) {
         if (err) {
-          console.log('BYECODE ERROR:', name, entry.path, err);
+          console.log('COMPILATION ERROR:', name, err);
           return next();
         }
 

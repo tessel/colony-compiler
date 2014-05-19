@@ -35,7 +35,7 @@ function all (entries, oncompiled, onfinish)
       if (err || !compiled) {
         return next(err);
       }
-      colonyCompiler.toBytecode(compiled, function (err, data) {
+      colonyCompiler.toBytecode(compiled, entry.path, function (err, data) {
         oncompiled(err, data, entry, next);
       })
     });
