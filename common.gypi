@@ -29,7 +29,6 @@
           '-ffunction-sections',
           '-fdata-sections',
           # '-fpermissive',
-          '-std=c99',
 
           '-Wall',
           #'-Wextra',
@@ -44,7 +43,6 @@
           '_GNU_SOURCE',
         ],
         'cflags': [
-          '-std=c99',
           '-ggdb',
 
           '-Wall',
