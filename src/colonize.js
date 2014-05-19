@@ -591,12 +591,21 @@ module.exports = function (script, opts)
     'end '
   ].join(joiner)
 
+  var linecache = Array(script.length);
+  for (var i = 0, lines = 0; i < script.length; i++) {
+    if (script[i] == '\n') {
+      lines++;
+    }
+    linecache[i] = lines;
+  }
+
   var last = 0;
   var sourcemap = mapped.match(/^(\-\-\[\[[^\]]+)?/gm).map(function (val, i) {
     if (val.length) {
       last = parseInt(val.slice(4))
     }
-    return last;
+    return linecache[last];
+    // return last;
   })
 
   return {

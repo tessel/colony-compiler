@@ -27,9 +27,18 @@ static int bufbuilder(lua_State* L, unsigned char* str, size_t len, struct luaL_
     return 0;
 }
 
+Persistent<Object> sourcemap;
+
+extern "C" {
 int _lua_sourcemap (int i)
 {
-	return 14;
+    int line = sourcemap->Get(NanNew<Number>(i - 1))->NumberValue();
+    if (line <= 0) {
+        line = sourcemap->Get(NanNew<Number>(sourcemap->Get(NanSymbol("length"))->NumberValue() - 1))->NumberValue();
+    }
+    // printf("OH %d\n", line);
+    return 14;
+}
 }
 
 int go_for_it (char *content, size_t contentSize, const char* name)
@@ -54,19 +63,25 @@ NAN_METHOD(Compile) {
     size_t str_len = 0;
     char *str = NanCString(args[0], &str_len);
 
+    size_t namestr_len = 0;
+    char *namestr = NanCString(args[1], &namestr_len);
+
+    Local<Object> sourcemapobj = args[2]->ToObject();
+    NanAssignPersistent(sourcemap, sourcemapobj);
     buffer_pointer = NULL;
     buffer_pointer_len = 0;
-    int res = go_for_it(str, str_len, "=stdin");
+    int res = go_for_it(str, str_len, namestr); // "=namestr");
+    NanDisposePersistent(sourcemap);
 
     if (res > 0) {
-    	NanReturnValue(Number::New(res));
+    	NanReturnValue(NanNew<Number>(res));
     } else {
     	NanReturnValue(NanNewBufferHandle((char*) buffer_pointer, buffer_pointer_len));
     }
 }
 
-#define EXPORT_METHOD(C, S) C->Set(NanSymbol(# S), FunctionTemplate::New(S)->GetFunction());
-#define EXPORT_CONSTANT(C, S) C->Set(NanSymbol(# S), Number::New(S));
+#define EXPORT_METHOD(C, S) C->Set(NanSymbol(# S), NanNew<FunctionTemplate>(S)->GetFunction());
+#define EXPORT_CONSTANT(C, S) C->Set(NanSymbol(# S), NanNew<Number>(S));
 
 void InitAll(Handle<Object> exports) {
     // Export functions.

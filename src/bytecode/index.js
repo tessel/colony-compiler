@@ -49,7 +49,7 @@ exports.compile = function (luacode, name, next)
 	// 	}
 	// });
 
-	var ret = binding.Compile(luacode.source, name)
+	var ret = binding.Compile(luacode.source, name || '=stdin', luacode.sourcemap || [0])
 	if (typeof ret == 'number') {
 		next(ret);
 	} else {
