@@ -311,7 +311,7 @@ function finishNode(node, type) {
 
   } else if (type == 'VariableDeclarator') {
     colony_locals[0].push(hygenify(node.id));
-    return colony_node(node, hygenify(node.id) + ' = ' + (node.init ? ensureExpression(node.init) : 'nil') + '; ')
+    return colony_node(node, hygenify(node.id) + ' = ' + (node.init ? ensureExpression(hygenify(node.init)) : 'nil') + '; ')
 
   } else if (type == 'VariableDeclaration') {
     return colony_node(node, node.declarations.join(' '));

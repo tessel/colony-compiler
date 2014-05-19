@@ -47,7 +47,7 @@ function withTarball (name, stream, next) {
 
       colonyCompiler.all(entries, function (err, compiled, entry, next) {
         if (err) {
-          console.log('COMPILATION ERROR:', name, err);
+          console.log('INTERNAL VM ERROR:', name, err);
           return next();
         }
 
