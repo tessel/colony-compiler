@@ -1,6 +1,9 @@
 {
   "name": "colony-compiler",
   "version": "0.5.0-7",
+  "optionalDependencies": {
+    "colony-compiler-shyp-darwin-x64": "0.5.x"
+  },
   "description": "Kinda compiles JavaScript to Lua.",
   "main": "./src/index.js",
   "directories": {
@@ -10,14 +13,15 @@
     "colony-compiler": "./bin/colony-compiler.js"
   },
   "scripts": {
-    "test": "./test/npm.js"
+    "test": "./test/npm.js",
+    "install": "node shyp-blacklist.js darwin-x64 || node-gyp rebuild"
   },
   "dependencies": {
     "colors": "~0.6.1",
     "optimist": "~0.5.2",
     "nan": "~1.0.0",
-    "bindings": "~1.2.0",
-    "async": "~0.9.0"
+    "async": "~0.9.0",
+    "bindings-shyp": "~0.2.3"
   },
   "devDependencies": {
     "tape": "~2.3.2",

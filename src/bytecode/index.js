@@ -1,4 +1,4 @@
-var binding = require('bindings')('colony_compiler_bytecode');
+var binding = require('bindings-shyp')('colony_compiler_bytecode');
 
 var colonyCompiler = require('../');
 
