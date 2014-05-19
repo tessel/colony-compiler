@@ -22,6 +22,7 @@
       "type": "static_library",
       "defines": [
         'LUA_USELONGLONG',
+        'LUA_OVERRIDE_SOURCEMAP',
       ],
       "sources": [
         '<(colony_lua_path)/src/lapi.c',
@@ -31,7 +32,6 @@
         '<(colony_lua_path)/src/ldblib.c',
         '<(colony_lua_path)/src/ldebug.c',
         '<(colony_lua_path)/src/ldo.c',
-        '<(colony_lua_path)/src/ldump.c',
         '<(colony_lua_path)/src/lfunc.c',
         '<(colony_lua_path)/src/lgc.c',
         '<(colony_lua_path)/src/linit.c',
@@ -50,10 +50,11 @@
         '<(colony_lua_path)/src/ltable.c',
         '<(colony_lua_path)/src/ltablib.c',
         '<(colony_lua_path)/src/ltm.c',
-        '<(colony_lua_path)/src/lundump.c',
         '<(colony_lua_path)/src/lvm.c',
         '<(colony_lua_path)/src/lzio.c',
         '<(colony_lua_path)/src/print.c',
+        '<(colony_lua_path)/src/ldump.c',
+        '<(colony_lua_path)/src/lundump.c',
       ],
 
       # Lua uses tmpname and has empty bodies and doesn't use some vars
@@ -85,12 +86,17 @@
         ],
         'include_dirs': [
           "<(colony_lua_path)/src",
+          "<(colony_lua_path)/etc",
         ],
-        'link_settings': {
-          'libraries': [
-            '-lm'
-          ]
-        }
+        'conditions': [
+          ['OS!="win"', {
+            'link_settings': {
+              'libraries': [
+                '-lm'
+              ]
+            }
+          }]
+        ],
       }
     },
   ]
