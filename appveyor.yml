@@ -15,6 +15,12 @@ build_script:
 platforms:
   - x32
 
+branches:
+  # whitelist
+  only:
+    - master
+    - production
+
 environment:
   NPM_AUTH:
     secure: zAum4sYowhTRxZi4qI1Dk1nwsgotTj3R+h5gywYinZk=
