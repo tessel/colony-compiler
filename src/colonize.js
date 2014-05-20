@@ -160,6 +160,8 @@ function finishNode(node, type) {
             return '\\' + ('000' + a).substr(-3);
           }).join('');
         }));
+    } else if (typeof node.value == 'number') {
+      return colony_node(node, '(' + JSON.stringify(node.value) + ')');
     } else {
       return colony_node(node, '(' + node.raw + ')');
     }
