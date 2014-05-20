@@ -16,7 +16,7 @@ var colonyCompiler = require('../');
 var client = new rem.Client();
 // client.debug = true
 
-function getDepended (page, next) {
+function getNpmDepended (page, next) {
   client.stream('https://www.npmjs.org/', 'browse/depended', page).get().pipe(skim({
     'rows': {
       '$query': '.row',
@@ -74,12 +74,8 @@ function getTarball (name, next) {
   })
 }
 
-async.mapLimit([0,1,2,3,4,5,6,7,8,9], 2, function (page, next) {
-  getDepended(page, next)
-}, function (err, modules) {
-  modules = [].concat.apply([], modules);
+function testModules (modules) {
   var i = 0;
-  
   console.log('# starting...');
   async.eachSeries(modules, function (m, next) {
     console.log('#', ++i, m);
@@ -90,4 +86,10 @@ async.mapLimit([0,1,2,3,4,5,6,7,8,9], 2, function (page, next) {
     }
     console.log('done');
   });
+}
+
+async.mapLimit([0,1,2,3,4,5,6,7,8,9], 2, function (page, next) {
+  getNpmDepended(page, next)
+}, function (err, modules) {
+  testModules([].concat.apply([], modules));
 });
