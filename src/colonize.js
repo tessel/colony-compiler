@@ -543,7 +543,7 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
 
     var laststr = '';
     if (repl && node.body.length && node.body[node.body.length - 1].expression) {
-      laststr = '\nif true then return ' + node.body.pop().expression + '; end';
+      laststr = '\nif true then return ' + ensureExpression(node.body.pop().expression) + '; end';
     }
     return colony_node(node, w + '\n--[[COLONY_MODULE]]\n' + localstr + hoistsr + bodyjoin(node.body) + laststr);
 
