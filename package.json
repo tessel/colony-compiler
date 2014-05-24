@@ -1,8 +1,9 @@
 {
   "name": "colony-compiler",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "optionalDependencies": {
     "colony-compiler-shyp-win32-ia32": "0.6.x",
+    "colony-compiler-shyp-win32-x64": "0.6.x",
     "colony-compiler-shyp-darwin-x64": "0.6.x"
   },
   "description": "Kinda compiles JavaScript to Lua.",
