@@ -12,9 +12,9 @@ build_script:
   - npm install
   - node-shyp publish
 
-platforms:
-  - x64
+platform:
   - x86
+  - x64
 
 branches:
   # whitelist
