@@ -38,6 +38,9 @@ int _lua_sourcemap (int i)
     if (line <= 0) {
         line = sourcemap->Get(NanNew<Number>(sourcemap->Get(NanSymbol("length"))->NumberValue() - 1))->NumberValue();
     }
+    if (line <= 0) {
+        line = 1;
+    }
     return line;
 }
 }
