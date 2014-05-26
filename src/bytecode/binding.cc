@@ -38,8 +38,7 @@ int _lua_sourcemap (int i)
     if (line <= 0) {
         line = sourcemap->Get(NanNew<Number>(sourcemap->Get(NanSymbol("length"))->NumberValue() - 1))->NumberValue();
     }
-    // printf("OH %d\n", line);
-    return 14;
+    return line;
 }
 }
 
