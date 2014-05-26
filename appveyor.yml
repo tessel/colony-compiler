@@ -1,7 +1,7 @@
 install:
   - git clone https://tmTestUser:tmTestUser1@github.com/tessel/colony-lua deps/colony-lua
-  - cinst nodejs.install -x86
-  - set PATH=%PATH%;"C:\Program Files (x86)\nodejs\"
+  - cinst nodejs.install
+  - set PATH=%PATH%;"C:\Program Files (x86)\nodejs\";"C:\Program Files\nodejs\"
   - npm config set _auth %NPM_AUTH%
   - npm config set email "id@timryan.org"
   - npm config set username "tcr"
@@ -13,7 +13,8 @@ build_script:
   - node-shyp publish
 
 platforms:
-  - x32
+  - x64
+  - x86
 
 branches:
   # whitelist
