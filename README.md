@@ -4,4 +4,4 @@ Note: Colony may not play nice with Lua's ecosystem, so it should not be conside
 
 ## License
 
-MIT
+MIT or Apache 2.0, at your option
