@@ -192,7 +192,7 @@ function finishNode(node, type) {
     if (node.operator != '=') {
       var operator = node.operator.slice(0, -1);
       if (operator in binaryops) {
-        node.right = binaryops[operator] + '((' + ensureExpression(node.left) + ') or 0, (' + ensureExpression(node.right) + ') or 0)'
+        node.right = binaryops[operator] + '((' + ensureExpression(hygenify(node.left)) + ') or 0, (' + ensureExpression(hygenify(node.right)) + ') or 0)'
       } else {
         // TODO we run the risk of re-interpreting node.left here
         // need a function that encapsulates that behavior
