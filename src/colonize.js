@@ -595,7 +595,7 @@ function colonize (script, opts)
       e.message,
       '',
       ((opts || {}).path || '(user script)') + ':' + e.loc.line,
-      script.split(/\n/)[e.loc.line-2] || '',
+      script.split(/\n/)[e.loc.line-1] || '',
       Array(e.loc.column || 0).join(' ') + '^'
     ].join('\n');
     // Files with syntax errors can't be compiled.
