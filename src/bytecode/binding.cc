@@ -37,11 +37,15 @@ static int bufbuilder(lua_State* L, unsigned char* str, size_t len, struct luaL_
     return 0;
 }
 
+int hassourcemap = 0;
 Persistent<Object> sourcemap_handle;
 
 extern "C" {
 int _lua_sourcemap (int i)
 {
+    if (hassourcemap == 0) {
+        return i;
+    }
     Local<Object> sourcemap = NanNew(sourcemap_handle);
     int line = sourcemap->Get(NanNew<Number>(i - 1))->NumberValue();
     if (line <= 0) {
@@ -81,12 +85,19 @@ NAN_METHOD(Compile) {
     size_t namestr_len = 0;
     char *namestr = NanCString(args[1], &namestr_len);
 
-    Local<Object> sourcemapobj = args[2]->ToObject();
-    NanAssignPersistent(sourcemap_handle, sourcemapobj);
+    if (!args[2]->IsNull()) {
+        hassourcemap = 1;
+        Local<Object> sourcemapobj = args[2]->ToObject();
+        NanAssignPersistent(sourcemap_handle, sourcemapobj);
+    } else {
+        hassourcemap = 0;
+    }
     buffer_pointer = NULL;
     buffer_pointer_len = 0;
     int res = go_for_it(str, str_len, namestr); // "=namestr");
-    NanDisposePersistent(sourcemap_handle);
+    if (!args[2]->IsNull()) {
+        NanDisposePersistent(sourcemap_handle);
+    }
 
     if (res > 0) {
     	NanReturnValue(NanNew<String>(lua_tostring(L, -1)));

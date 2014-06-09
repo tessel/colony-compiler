@@ -13,7 +13,7 @@ var colonyCompiler = require('../');
 
 exports.compile = function (luacode, name, next)
 {
-  var ret = binding.Compile(luacode.source, name || '=stdin', luacode.sourcemap || [0])
+  var ret = binding.Compile(luacode.source, name || '=stdin', luacode.sourcemap || null)
   if (Buffer.isBuffer(ret)) {
     next(null, ret);
   } else {
