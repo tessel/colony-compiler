@@ -21,11 +21,12 @@ var logicalops = { '&&': 'and', '||': 'or' };
 var binaryops = { '|': '_bit.bor', '&': '_bit.band', '|': '_bit.bor', '>>': '_bit.arshift', '<<': '_bit.lshift', '>>>': '_bit.rshift', '^': '_bit.bxor', 'instanceof': '_instanceof', 'in': '_in' }
 var infixops = { '!==': '~=', '!=': '~=', '===': '==' };
 
-var colony_locals, colony_flow, colony_with;
+var colony_locals, colony_flow, colony_with, colony_regexes;
 
 function resetState () {
   colony_locals = [];
   colony_with = [];
+  colony_regexes = [];
 
   colony_newScope(null);
 }
@@ -160,7 +161,8 @@ function finishNode(node, type) {
 
   } else if (type == 'Literal') {
     if (node.value instanceof RegExp) {
-      return colony_node(node, '_regexp(' + JSON.stringify(node.value.source) + ', ' + JSON.stringify(String(node.value).replace(/^.*\//, '')) + ')');
+      var i = colony_regexes.push('_regexp(' + JSON.stringify(node.value.source) + ', ' + JSON.stringify(String(node.value).replace(/^.*\//, '')) + ')');
+      return colony_node(node, '_regex' + (i-1));
     } else if (typeof node.value == 'string') {
       return colony_node(node, '("' + (node.value
         .replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")')
@@ -205,7 +207,7 @@ function finishNode(node, type) {
     // For dynamic expressions, evaluate temporary member to properly call "this"
     if (node.callee.type == 'MemberExpression' && String(node.callee).match(/\]$/)) {
       // Find last square bracketed group. (wow such CS)
-      var start = 0, str = String(node.callee), count = 0; 
+      var start = 0, str = String(node.callee), count = 0;
       for (var i = 0; i < str.length; i++) {
         if (str[i] == '[') {
           if (count == 0) start = i;
@@ -549,6 +551,9 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
     var localstr = colony_locals[0].length ? 'local ' + colony_locals[0].join(', ') + ' = ' + colony_locals[0].join(', ') + ';\n' : '';
     var hoistsr = colony_locals[0].hoist.join('\n');
     colony_locals.shift()
+    colony_regexes.forEach(function (r, i) {
+      localstr += 'local _regex' + i + ' = ' + r + ';\n'
+    });
 
     var laststr = '';
     if (repl && node.body.length && node.body[node.body.length - 1].expression) {
