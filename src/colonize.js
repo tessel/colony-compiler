@@ -16,7 +16,7 @@ function _log () {
 var repl = false;
 
 var keywords = ['and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for', 'function', 'if', 'in', 'local', 'nil', 'not', 'or', 'repeat', 'return', 'then', 'true', 'until', 'while'];
-var unaryops = { '|': '_bit.bor', '&': '_bit.band', '~': '_bit.bnot', '+': '_G.tonumber', '!': 'not ', 'typeof': '_typeof', 'void': '_void' }
+var unaryops = { '|': '_bit.bor', '&': '_bit.band', '~': '_bit.bnot', '+': '_G.tonumbervalue', '!': 'not ', 'typeof': '_typeof', 'void': '_void' }
 var logicalops = { '&&': 'and', '||': 'or' };
 var binaryops = { '|': '_bit.bor', '&': '_bit.band', '|': '_bit.bor', '>>': '_bit.arshift', '<<': '_bit.lshift', '>>>': '_bit.rshift', '^': '_bit.bxor', 'instanceof': '_instanceof', 'in': '_in' }
 var infixops = { '!==': '~=', '!=': '~=', '===': '==' };
