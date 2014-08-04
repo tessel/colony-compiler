@@ -18,7 +18,8 @@ var repl = false;
 var keywords = ['and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for', 'function', 'if', 'in', 'local', 'nil', 'not', 'or', 'repeat', 'return', 'then', 'true', 'until', 'while'];
 var unaryops = { '|': '_bit.bor', '&': '_bit.band', '~': '_bit.bnot', '+': '_G.tonumbervalue', '!': 'not ', 'typeof': '_typeof', 'void': '_void' }
 var logicalops = { '&&': 'and', '||': 'or' };
-var binaryops = { '|': '_bit.bor', '&': '_bit.band', '|': '_bit.bor', '>>': '_bit.arshift', '<<': '_bit.lshift', '>>>': '_bit.rshift', '^': '_bit.bxor', 'instanceof': '_instanceof', 'in': '_in' }
+var bitops = { '|': '_bit.bor', '&': '_bit.band', '|': '_bit.bor', '>>': '_bit.arshift', '<<': '_bit.lshift', '>>>': '_bit.rshift', '^': '_bit.bxor'}
+var binaryops = { 'instanceof': '_instanceof', 'in': '_in' }
 var infixops = { '!==': '~=', '!=': '~=', '===': '==' };
 
 var colony_locals, colony_flow, colony_with, colony_regexes;
@@ -196,7 +197,9 @@ function finishNode(node, type) {
     if (node.operator != '=') {
       var operator = node.operator.slice(0, -1);
       if (operator in binaryops) {
-        node.right = binaryops[operator] + '((' + ensureExpression(hygenify(node.left)) + ') or 0, (' + ensureExpression(hygenify(node.right)) + ') or 0)'
+        node.right = binaryops[operator] + '((' + ensureExpression(hygenify(node.left)) + '), (' + ensureExpression(hygenify(node.right)) + '))'
+      } else if (operator in bitops) {
+        node.right = bitops[operator] + '(_G.tointegervalue(' + ensureExpression(hygenify(node.left)) + '), _G.tointegervalue(' + ensureExpression(hygenify(node.right)) + '))'
       } else {
         // TODO we run the risk of re-interpreting node.left here
         // need a function that encapsulates that behavior
@@ -261,8 +264,10 @@ function finishNode(node, type) {
     return colony_node(node, '((' + ensureExpression(hygenify(node.left)) + ')' + logicalops[node.operator] + '(' + ensureExpression(hygenify(node.right)) + '))')
 
   } else if (type == 'BinaryExpression') {
-    if (node.operator in binaryops) {
-      return colony_node(node, binaryops[node.operator] + '((' + ensureExpression(hygenify(node.left)) + ') or 0,(' + ensureExpression(hygenify(node.right)) + ') or 0)')
+    if (node.operator in bitops) {
+      return colony_node(node, bitops[node.operator] + '(_G.tointegervalue(' + ensureExpression(hygenify(node.left)) + '),_G.tointegervalue(' + ensureExpression(hygenify(node.right)) + '))')
+    } else if (node.operator in binaryops) {
+      return colony_node(node, binaryops[node.operator] + '((' + ensureExpression(hygenify(node.left)) + '),(' + ensureExpression(hygenify(node.right)) + '))')
     } else {
       // infix
       return colony_node(node, '((' + ensureExpression(hygenify(node.left)) + ')' + (infixops[node.operator] || node.operator) + '(' + ensureExpression(hygenify(node.right)) + '))')
