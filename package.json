@@ -1,6 +1,6 @@
 {
   "name": "colony-compiler",
-  "version": "0.6.15",
+  "version": "0.6.16",
   "optionalDependencies": {
     "colony-compiler-shyp-win32-ia32": "0.6.x",
     "colony-compiler-shyp-win32-x64": "0.6.x",
