@@ -443,10 +443,11 @@ function finishNode(node, type) {
     var flow = colony_flow.shift();
 
     return colony_node(node, [
-'local _e = nil',
+'local _e, _noreturn = nil, {}',
 'local _s, _r = _xpcall(function ()',
 node.block.body ? bodyjoin(node.block.body) : '',
 //    #{if tryStat.stats[-1..][0].type != 'ret-stat' then "return _cont" else ""}
+'      if true then return _noreturn; end',
 '    end, function (err)',
 '        _e = err',
 '    end);'
@@ -454,7 +455,10 @@ node.block.body ? bodyjoin(node.block.body) : '',
 // catch clause
 'if _s == false then',
 hygenifystr(node.handler.param) + ' = _e;',
+'_r = (function ()',
 node.handler.body ? bodyjoin(node.handler.body.body) : '',
+'  if true then return _noreturn; end',
+'end)();',
 
 // break clause.
 'end;'
@@ -465,14 +469,19 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
 '_error(_e)',
 'end'
 ]).concat(
-!colony_flow.length ? [] : [
+!colony_flow.length ? [
+'if _r ~= _noreturn then',
+'  return _r',
+'end;'
+] : [
 //break
 'if _r == _break then',
 (colony_flow.length && colony_flow[0].type == 'try' ? 'return _break;' : 'break;'),
 // continue clause.
 'elseif _r == _cont then',
-//'  return _r',
 (colony_flow.length && colony_flow[0].type == 'try' ? 'return _cont;' : 'break;'),
+'elseif _r ~= _noreturn then',
+'  return _r',
 'end;'
     ]).join('\n'));
 
