@@ -24,6 +24,13 @@
         'LUA_USELONGLONG',
         'LUA_OVERRIDE_SOURCEMAP',
       ],
+      "conditions": [
+        ["OS=='win'", {
+          'defines': [
+            '_WIN32'
+          ],
+        }],
+      ],
       "sources": [
         '<(colony_lua_path)/src/lapi.c',
         '<(colony_lua_path)/src/lauxlib.c',

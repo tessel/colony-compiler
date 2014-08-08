@@ -2,15 +2,14 @@ install:
   - git clone https://tmTestUser:tmTestUser1@github.com/tessel/colony-lua deps/colony-lua
   - cinst nodejs.install
   - set PATH=%PATH%;"C:\Program Files (x86)\nodejs\";"C:\Program Files\nodejs\"
-  - npm config set _auth %NPM_AUTH%
-  - npm config set email "id@timryan.org"
-  - npm config set username "tcr"
   - npm install -g node-gyp
   - npm install -g node-shyp
 
 build_script:
   - npm install
-  - node-shyp publish
+  - node-shyp publish --pack
+  - move build\shyp\*.tgz colony-compiler.tgz
+  - appveyor PushArtifact colony-compiler.tgz
 
 platform:
   - x86
@@ -21,7 +20,3 @@ branches:
   only:
     - master
     - production
-
-environment:
-  NPM_AUTH:
-    secure: zAum4sYowhTRxZi4qI1Dk1nwsgotTj3R+h5gywYinZk=
