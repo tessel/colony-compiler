@@ -6,11 +6,9 @@ install:
   - npm install -g node-shyp
 
 build_script:
-  - npm install
-  - npm config set _auth %NPM_AUTH%
-  - npm config set email "id@timryan.org"
-  - npm config set username "tcr"
-  - node-shyp publish
+  - node-shyp publish --pack
+  - mv colony-compiler-*.tgz colony-compiler.tgz
+  - appveyor PushArtifact colony-compiler.tgz
 
 platform:
   - x86
@@ -21,7 +19,3 @@ branches:
   only:
     - master
     - production
-
-environment:
-  NPM_AUTH:
-    secure: zAum4sYowhTRxZi4qI1Dk1nwsgotTj3R+h5gywYinZk=
