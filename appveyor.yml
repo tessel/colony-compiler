@@ -6,6 +6,7 @@ install:
   - npm install -g node-shyp
 
 build_script:
+  - npm install
   - node-shyp publish --pack
   - mv colony-compiler-*.tgz colony-compiler.tgz
   - appveyor PushArtifact colony-compiler.tgz
