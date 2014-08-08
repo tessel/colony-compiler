@@ -8,7 +8,7 @@ install:
 build_script:
   - npm install
   - node-shyp publish --pack
-  - move *.tgz colony-compiler.tgz
+  - move build\shyp\*.tgz colony-compiler.tgz
   - appveyor PushArtifact colony-compiler.tgz
 
 platform:
