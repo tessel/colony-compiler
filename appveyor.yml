@@ -1,7 +1,7 @@
 install:
   - git clone https://tmTestUser:tmTestUser1@github.com/tessel/colony-lua deps/colony-lua
-  - if "%PLATFORM%" EQ "x86" cinst nodejs.install -x86
-  - if "%PLATFORM%" NEQ "x86" cinst nodejs.install
+  - ps: if ($Env:PLATFORM -eq "x86") { cinst nodejs.install -x86 }
+  - ps: if ($Env:PLATFORM -neq "x86") { cinst nodejs.install }
   - set PATH=%PATH%;"C:\Program Files (x86)\nodejs\";"C:\Program Files\nodejs\"
   - npm install -g node-gyp
   - npm install -g node-shyp
