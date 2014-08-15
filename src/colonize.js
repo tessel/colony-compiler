@@ -540,7 +540,7 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
       + hoistsr
       + bodyjoin(node.body.body)
       + '\nend'
-      + (node.id ? '; ' + hygenifystr(node.id) + '.name = ' + JSON.stringify(hygenifystr(node.id)) + '; return ' + hygenifystr(node.id) + '; end)()' : '')
+      + (node.id ? '; ' + hygenifystr(node.id) + ':__defineGetter__("name", function () return ' + JSON.stringify(hygenifystr(node.id)) + '; end); return ' + hygenifystr(node.id) + '; end)()' : '')
       + (type == 'FunctionDeclaration' ? ';\n' : ')'));
 
     if (type == 'FunctionDeclaration') {
