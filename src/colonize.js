@@ -225,7 +225,7 @@ function finishNode(node, type) {
     var ismethod = node.callee.type == 'MemberExpression'
     return colony_node(node,
       (ismethod ? hygenify(node.callee).replace(/^([\s\S]+)\./, '$1:') : ensureExpression(hygenify(node.callee)))
-      + '(' + (ismethod ? [] : ['this']).concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
+      + '(' + (ismethod ? [] : ['_global']).concat(node.arguments.map(hygenify).map(ensureExpression)).join(', ') + ')');
 
   } else if (type == 'NewExpression') {
     // var ismethod = node.callee.type == 'MemberExpression'
