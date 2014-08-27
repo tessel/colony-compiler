@@ -157,7 +157,9 @@ function finishNode(node, type) {
     if (node.name == 'arguments') {
       colony_locals[0].arguments = true;
     }
-    return colony_node(node, node.name);
+    var ret = colony_node(node, node.name);
+    ret.name = node.name;
+    return ret;
 
   } else if (type == 'Literal') {
     if (node.value instanceof RegExp) {
@@ -273,11 +275,28 @@ function finishNode(node, type) {
     return colony_node(node, '_arr({' + [node.elements.length > 0 ? '[0]=' + ensureExpression(hygenify(opt(node.elements[0]))) : ''].concat(node.elements.slice(1).map(opt).map(hygenify).map(ensureExpression)).join(', ') + '}, ' + node.elements.length + ')')
 
   } else if (type == 'ObjectExpression') {
-    return colony_node(node, '_obj({\n  '
-      + node.properties.map(function (prop) {
+    var getset = {};
+    var src = '_obj({\n  '
+      + node.properties.filter(function (prop) {
+        if (prop.kind != 'init') {
+          (getset[prop.key] || (getset[prop.key] = {}))[prop.kind] = prop;
+        }
+        return prop.kind == 'init';
+      }).map(function (prop) {
         return '[' + (prop.key.type == 'Literal' ? prop.key : JSON.stringify(prop.key.toString())) + ']=' + ensureExpression(hygenify(prop.value))
       }).join(',\n  ')
-      + '\n})');
+      + '\n})';
+    if (Object.keys(getset).length) {
+      src = '(function () local _r = ' + src + '; '
+        + Object.keys(getset).map(function (key) {
+          return 'Object:defineProperty(_r, ' + JSON.stringify(key) + ', {'
+            + Object.keys(getset[key]).map(function (kind) {
+              return kind + ' = ' + getset[key][kind].value
+            }).join(', ') + '}); '
+        }).join(' ')
+        + ' return _r; end)()';
+    }
+    return colony_node(node, src);
 
   } else if (type == 'SequenceExpression') {
     return colony_node(node, '_seq({' + node.expressions.map(function (d) {
@@ -588,6 +607,7 @@ function colonize (script, opts)
   try {
     resetState();
     var res = acorn.parse(script, {
+      ecmaVersion: 5,
       allowReturnOutsideFunction: true,
       behaviors: {
         openFor: colony_newFlow.bind(null, 'for'),
