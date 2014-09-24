@@ -168,8 +168,10 @@ function finishNode(node, type) {
     } else if (typeof node.value == 'string') {
       return colony_node(node, '("' + (node.value
         .replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")')
-        .replace(/[^\u0020-\u007E]+/g, function (c) {
-          return [].slice.apply(new Buffer(c)).map(function (a) {
+        .replace(/[^\u0020-\u007E]/g, function (c) {
+          // IMPORTANT: this assumes that NODE_INVALID_UTF8 variable is set
+          // see http://blog.nodejs.org/2014/06/16/openssl-and-breaking-utf-8-change/
+          return Array.prototype.map.call(new Buffer(c), function (a) {
             return '\\' + ('000' + a).substr(-3);
           }).join('');
         }));

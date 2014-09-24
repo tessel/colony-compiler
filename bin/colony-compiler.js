@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env NODE_INVALID_UTF8= node
 // Copyright 2014 Technical Machine, Inc. See the COPYRIGHT
 // file at the top-level directory of this distribution.
 //
