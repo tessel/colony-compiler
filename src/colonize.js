@@ -168,7 +168,7 @@ function finishNode(node, type) {
     } else if (typeof node.value == 'string') {
       return colony_node(node, '("' + (node.value
         .replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")')
-        .replace(/[\0-\u001f\u007F-\uD7FF\uDC00-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF]/g, function (c) {
+        .replace(/[^\u0020-\u007E]+/g, function (c) {
           return [].slice.apply(new Buffer(c)).map(function (a) {
             return '\\' + ('000' + a).substr(-3);
           }).join('');
