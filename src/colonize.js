@@ -415,7 +415,7 @@ function finishNode(node, type) {
     }).reverse();
 
     return colony_node(node, [
-      'while ' + ensureExpression(node.test) + ' do ',
+      'while ' + hygenify(ensureExpression(node.test)) + ' do ',
       (flow.usesContinue ? 'local _c' + (flow.label||'') + ' = nil; repeat' : ''),
       !node.body.body ? node.body : bodyjoin(node.body.body),
       (flow.usesContinue ? 'until true;\nif _c' + flow.label + ' == _break' + [''].concat(ascend).join(' or _c') + ' then break end;' : ''),
@@ -439,7 +439,7 @@ function finishNode(node, type) {
       (flow.usesContinue ? 'local _c' + (flow.label||'') + ' = nil; repeat' : ''),
       !node.body.body ? node.body : bodyjoin(node.body.body),
       (flow.usesContinue ? 'until true;\nif _c' + flow.label + ' == _break' + [''].concat(ascend).join(' or _c') + ' then break end;' : ''),
-      'until not (' + ensureExpression(node.test) + '); ',
+      'until not (' + hygenify(ensureExpression(node.test)) + '); ',
     ].join('\n'));
 
   } else if (type == 'ForStatement') {
@@ -449,7 +449,7 @@ function finishNode(node, type) {
     return colony_node(node, [
       // TODO need node.init.declarations?
       node.init ? (node.init.declarations ? node.init.declarations.join(' ') : ensureStatement(hygenify(node.init))) : '',
-      'while ' + (node.test ? ensureExpression(node.test) : 'true') + ' do ',
+      'while ' + (node.test ? hygenify(ensureExpression(node.test)) : 'true') + ' do ',
       (flow.usesContinue ? 'local _c = nil; repeat' : ''),
       !node.body.body ? node.body : bodyjoin(node.body.body),
       (flow.usesContinue ? 'until true;\nif _c == _break then break end;' : ''),
