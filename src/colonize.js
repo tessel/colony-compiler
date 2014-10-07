@@ -149,6 +149,11 @@ function bodyjoin (arr) {
   }).join('\n');
 }
 
+// - see http://blog.nodejs.org/2014/06/16/openssl-and-breaking-utf-8-change/ -
+// Nowadays must set NODE_INVALID_UTF8 in env to UTF-8 encode unmatched surrogates.
+// So we provide fallback code in case this doesn't get set.
+var NODE_ENCODING_CESU8 = (Buffer('\ud800')[0] === 0xED);
+
 function finishNode(node, type) {
   _log('==>', type);
 
@@ -169,8 +174,18 @@ function finishNode(node, type) {
     } else if (typeof node.value == 'string') {
       return colony_node(node, '("' + (node.value
         .replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")')
-        .replace(/[\0-\u001f\u007F-\uD7FF\uDC00-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF]/g, function (c) {
-          return [].slice.apply(new Buffer(c)).map(function (a) {
+        .replace(/[^\u0020-\u007E]/g, function (s) {
+          var seq;
+          if (NODE_ENCODING_CESU8) seq = Buffer(s);
+          else {
+            var c = s.charCodeAt(0);
+            if (c < 0x80) seq = [c];
+            else if (c < 0x800) seq = [0xc0 | (c >>> 6), 0x80 | (c & 0x3F)];
+            else if (c < 0x10000) seq = [0xe0 | (c >>> 12), 0x80 | ((c >>> 6) & 0x3F), 0x80 | (c & 0x3F)];
+            else if (c < 0x110000) seq = [0xf0 | (c >>> 18), 0x80 | ((c >>> 12) & 0x3F), 0x80 | ((c >>> 6) & 0x3F), 0x80 | (c & 0x3F)];
+            else seq = [0xEF, 0xBF, 0xBD];      // '\uFFFD'
+          }
+          return Array.prototype.map.call(seq, function (a) {
             return '\\' + ('000' + a).substr(-3);
           }).join('');
         }));

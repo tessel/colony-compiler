@@ -34,7 +34,7 @@ function cli () {
       if (!fs.existsSync(file) && fs.existsSync(file + '.js')) {
         file = file + '.js';
       }
-      source = fs.readFileSync(file, 'utf-8');
+      source = fs.readFileSync(file, 'utf8');
     } catch (e) {
       console.error(String(e.stack).red);
       process.exit(100);
