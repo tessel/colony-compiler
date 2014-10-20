@@ -561,6 +561,7 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
 
   } else if (type == 'FunctionExpression' || type == 'FunctionDeclaration') {
     var localstr = colony_locals[0].length ? 'local ' + colony_locals[0].join(', ') + ' = ' + colony_locals[0].join(', ') + ';\n' : '';
+    var callee = (node.id) ? hygenifystr(node.id) : '_callee';
     var usesArguments = !!colony_locals[0].arguments;
     var hoistsr = colony_locals[0].hoist.join('\n');
     colony_locals.shift()
@@ -573,7 +574,7 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
       + (node.id ? '(function () local ' + hygenifystr(node.id) + ' = nil; ' + hygenifystr(node.id) + ' = ' : '')
       + 'function ('
       + (usesArguments
-        ? 'this, ...)\n' + (node.params.length ? 'local ' + node.params.map(hygenifystr).join(', ') + ' = ...;\n' : '') + 'local arguments = _arguments(...);\n'
+        ? 'this, ...)\n' + (node.params.length ? 'local ' + node.params.map(hygenifystr).join(', ') + ' = ...;\n' : '') + 'local arguments = _arguments('+ callee +', ...);\n'
         : ['this'].concat(node.params.map(hygenifystr)).join(', ') + ')\n')
       + localstr
       + hoistsr
