@@ -23,6 +23,7 @@ var binaryops = { 'instanceof': '_instanceof', 'in': '_in' }
 var infixops = { '!==': '~=', '!=': '~=', '===': '==' };
 
 var colony_locals, colony_flow, colony_with, colony_regexes;
+var linecache, embedlineno = false;
 
 function resetState () {
   colony_locals = [];
@@ -145,7 +146,9 @@ function ensureStatement (node) {
 
 function bodyjoin (arr) {
   return (arr || []).map(function (node) {
-    return '--[[' + node.start + ']] ' + (node.type == 'BlockStatement' ? bodyjoin(node.body) : node);
+    return '--[['
+      + (embedlineno ? linecache[node.start]+1 : node.start)
+      + ']] ' + (node.type == 'BlockStatement' ? bodyjoin(node.body) : node);
   }).join('\n');
 }
 
@@ -618,10 +621,20 @@ function colonize (script, opts)
   var joiner = '\n';
 
   repl = (opts || {}).returnLastStatement;
+  embedlineno = !!(opts || {}).embedLineNumbers;
   var wrap = (opts || {}).wrap !== false;
 
   // Replace leading /usr/bin/env lines.
   script = script.replace(/^\#\!/, '//#!');
+
+  // Map each string offset to its line once...
+  linecache = Array(script.length);
+  for (var i = 0, lines = 0; i < script.length; i++) {
+    if (script[i] == '\n') {
+      lines++;
+    }
+    linecache[i] = lines;
+  }
 
   // Parse script.
   try {
@@ -676,14 +689,6 @@ function colonize (script, opts)
     'end '
   ].join(joiner)
 
-  // Map each string offset to its line once...
-  var linecache = Array(script.length);
-  for (var i = 0, lines = 0; i < script.length; i++) {
-    if (script[i] == '\n') {
-      lines++;
-    }
-    linecache[i] = lines;
-  }
   // So we can recover string offsets and make a source map.
   var last = 0;
   var sourcemap = mapped.match(/^(\-\-\[\[[^\]]+)?/gm).map(function (val, i) {
