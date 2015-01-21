@@ -565,6 +565,8 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
   } else if (type == 'FunctionExpression' || type == 'FunctionDeclaration') {
     var localstr = colony_locals[0].length ? 'local ' + colony_locals[0].join(', ') + ' = ' + colony_locals[0].join(', ') + ';\n' : '';
     var usesArguments = !!colony_locals[0].arguments;
+    var strictMode = false;
+    var callee = node.id ? hygenifystr(node.id) : usesArguments ? '_callee' : null;
     var hoistsr = colony_locals[0].hoist.join('\n');
     colony_locals.shift()
     colony_flow = colony_locals[0].flow;
@@ -573,16 +575,16 @@ node.finalizer ? bodyjoin(node.finalizer.body) : '',
     }
     var fnnode = colony_node(node,
       (type == 'FunctionDeclaration' ? (node.id ? hygenifystr(node.id) + ' = ' : '') + '' : '(')
-      + (node.id ? '(function () local ' + hygenifystr(node.id) + ' = nil; ' + hygenifystr(node.id) + ' = ' : '')
+      + (callee ? '(function () local ' + hygenifystr(callee) + ' = nil; ' + hygenifystr(callee) + ' = ' : '')
       + 'function ('
       + (usesArguments
-        ? 'this, ...)\n' + (node.params.length ? 'local ' + node.params.map(hygenifystr).join(', ') + ' = ...;\n' : '') + 'local arguments = _arguments(...);\n'
+        ? 'this, ...)\n' + (node.params.length ? 'local ' + node.params.map(hygenifystr).join(', ') + ' = ...;\n' : '') + 'local arguments = _arguments(' + JSON.stringify(strictMode) + ', ' + (callee || 'nil') + ', ...);\n'
         : ['this'].concat(node.params.map(hygenifystr)).join(', ') + ')\n')
       + localstr
       + hoistsr
       + bodyjoin(node.body.body)
       + '\nend'
-      + (node.id ? '; ' + hygenifystr(node.id) + ':__defineGetter__("name", function () return ' + JSON.stringify(hygenifystr(node.id)) + '; end); return ' + hygenifystr(node.id) + '; end)()' : '')
+      + (callee ? '; ' + hygenifystr(callee) + ':__defineGetter__("name", function () return ' + JSON.stringify(hygenifystr(callee)) + '; end); return ' + hygenifystr(callee) + '; end)()' : '')
       + (type == 'FunctionDeclaration' ? ';\n' : ')'));
 
     if (type == 'FunctionDeclaration') {
