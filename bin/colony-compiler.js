@@ -18,7 +18,6 @@ var colony = require('../');
 var args = optimist
   .usage('Compile JavaScript to Lua.\nUsage: $0 file.js')
   .alias('e', 'evalsource').describe('e', 'Compile a line of code.')
-  .alias('m', 'minify').boolean('m').describe('m', 'Compile code to bytecode.')
   .alias('l', 'lines').boolean('l').describe('l', 'Compile original line numbers as comments.')
   ;
 
@@ -46,16 +45,7 @@ function cli () {
   var luacode = colony.colonize(source, {
     embedLineNumbers: argv.lines
   });
-  if (argv.m) {
-    colony.toBytecode(luacode, file, function (err, bin) {
-      if (err) {
-        throw err;
-      }
-      process.stdout.write(bin);
-    })
-  } else {
-    console.log(luacode.source);
-  }
+  console.log(luacode.source);
 }
 
 if (require.main == module) {

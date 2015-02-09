@@ -41,12 +41,12 @@ function all (entries, oncompiled, onfinish)
     var task = { entry: entry };
     q.push(task, function (err) {
       var compiled = task.compiled;
+      if (compiled) {
+        throw new Error('Bytecode compilation not supported in colony-compiler v1.0.')
+      }
       if (err || !compiled) {
         return next(err);
       }
-      colonyCompiler.toBytecode(compiled, entry.path, function (err, data) {
-        oncompiled(err, data, entry, next);
-      })
     });
   }, onfinish);
 }
