@@ -2,6 +2,8 @@
 
 # Colony compiles JS to Lua
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/tessel/colony-compiler.svg)](https://greenkeeper.io/)
+
 Note: Colony may not play nice with Lua's ecosystem, so it should not be considered a straightforward alternative to writing Lua code.
 
 ## License
